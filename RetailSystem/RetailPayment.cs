@@ -11,9 +11,11 @@ namespace RetailSystem
 
         //My config "files" 
         private const double PricePluA = 59.90;
+        private const int GetPayFor = 3;
         private const int PricePluB = 399;
         private const int PriceThreePackPluB = 999;
         private const double PricePluCprGram = 19.54 / 1000;
+
 
         public RetailPayment()
         {
@@ -51,17 +53,17 @@ namespace RetailSystem
 
         public int CalculateCost()
         {
-            var numberPluAPayingFor = _pairOfPluA - _pairOfPluA / 3;
-            var pricePluA = CalculatePluACost(numberPluAPayingFor, PricePluA);
+            var pricePluA = CalculatePluACost(_pairOfPluA, PricePluA, GetPayFor);
             var pricePluB = CalculatePluBCost(_numberOfPluB, PricePluB, PriceThreePackPluB);
             var pricePubC = CalculatePluCCost(_amountOfPluCInGrams, PricePluCprGram);
             var price = pricePluA + pricePluB + pricePubC;
             return (RoundOff(price));
         }
 
-        private double CalculatePluACost(int numberPluA, double pricePluA)
+        private double CalculatePluACost(int numberPluA, double pricePluA, int getXPayFor)
         {
-            return numberPluA * pricePluA;
+            var numberPluAPayingFor = numberPluA - numberPluA / getXPayFor;
+            return numberPluAPayingFor * pricePluA;
         }
 
         private static int CalculatePluBCost(int numberOfArticles, int pricePrArticle, int bundlePrice)

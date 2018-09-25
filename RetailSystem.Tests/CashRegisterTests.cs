@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace RetailSystem.Tests
 {
@@ -41,5 +35,85 @@ namespace RetailSystem.Tests
             Assert.That(totalCost, Is.EqualTo(totalPrice));
         }
 
+        [Test]
+        public void OneKiloOfTalcumPowder_returnsKr20()
+        {
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(20));
+        }
+
+        [Test]
+        public void AmountOfTalcumPowderCostLessOneOre_returnsKr0()
+        {
+            const double smallAmountCostLessThanOneOere = 1 / 1.954;
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void AmountOfTalcumPowderALittleMoreThanOneOre_returnsKr0()
+        {
+            const double smallAmountCostLessThanOneOere = 1 / 1.953;
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(0));
+        }
+
+        [TestCase(1000, 20)]
+        [TestCase(500, 10)]
+        [TestCase(333, 7)]
+        [Test]
+        public void AmountOfTalcumPowder_returnsKr(int amount, int KrPrice)
+        {
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU C", amount);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(KrPrice));
+        }
+
+
+        [Test]
+        public void AddingOneOfEachDifferentProducts_ReturnsKr475()
+        {
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 1);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(478));
+        }
+
+        [Test]
+        public void AddingOneBundleOfEachDifferentProducts_ReturnsKr475()
+        {
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU A", 3);
+            cashRegister.Add("PLU B", 3);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(1138));
+        }
+
+        [Test]
+        public void AddingSeveralDifferentProductsNotInOrder_ReturnsKr2030()
+        {
+            var cashRegister = new RetailPayment();
+            cashRegister.Add("PLU C", 750);
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 2);
+            cashRegister.Add("PLU C", 1000);
+            cashRegister.Add("PLU B", 1);
+            cashRegister.Add("PLU A", 2);
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 2);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost();
+            Assert.That(totalCost, Is.EqualTo(2030));
+        }
     }
 }

@@ -1,63 +1,112 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using RetailSystem.DAL;
 
 namespace RetailSystem
 {
     public class RetailPayment
     {
-        //My in memory storage
-        private int _pairOfPluA;
-        private int _numberOfPluB;
-        private double _amountOfPluCInGrams;
+        private readonly IEnumerable<Product> _allProducts;
+        private readonly List<Item> _accumulatedProducts;
 
-        //My config "files" 
-        private const double PricePluA = 59.90;
-        private const int GetPayFor = 3;
-        private const int PricePluB = 399;
-        private const int PriceThreePackPluB = 999;
-        private const double PricePluCprGram = 19.54 / 1000;
+        ////My in memory storage
+        //private int _pairOfPluA;
+        //private int _numberOfPluB;
+        //private double _amountOfPluCInGrams;
+
+        ////My config "files" 
+        //private const double PricePluA = 59.90;
+        //private const int GetPayFor = 3;
+        //private const int PricePluB = 399;
+        //private const int PriceThreePackPluB = 999;
+        //private const double PricePluCprGram = 19.54 / 1000;
 
 
-        public RetailPayment()
+        public RetailPayment(ProductRepository repository)
         {
-            _pairOfPluA = 0;
-            _numberOfPluB = 0;
-            _amountOfPluCInGrams = 0;
+            _allProducts = repository.GetAllProducts();
+            _accumulatedProducts = new List<Item>();
+
+            foreach (var product in _allProducts)
+            {
+                _accumulatedProducts.Add(new Item
+                {
+                    ProductType = product,
+                    Amount = 0
+                });
+            }
         }
 
         public void Add(string plu, double amount)
         {
             if (amount < 0)
             {
-                //Error. You can't remove items
+                Console.WriteLine("You can't remove items"); 
                 return;
             }
-            var units = (int)amount;
 
-            //Refactor when adding more items
-            switch (plu)
+            if (_allProducts.Any(p => p.Name.Equals(plu)))
             {
-                case "PLU A":
-                    _pairOfPluA += units;
-                    break;
-                case "PLU B":
-                    _numberOfPluB += units;
-                    break;
-                case "PLU C":
-                    _amountOfPluCInGrams += amount;
-                    break;
-                default:
-                    //Error: Unknown product
-                    break;
+                _accumulatedProducts.Find(p => p.ProductType.Name.Equals(plu)).Amount += amount;
+            }
+            else
+            {
+                Console.WriteLine("Product does not exist");
             }
         }
 
-        public int CalculateCost()
+        public int CalculateCost(List<Item> accumulatedProducts)
         {
-            var pricePluA = CalculatePluACost(_pairOfPluA, PricePluA, GetPayFor);
-            var pricePluB = CalculatePluBCost(_numberOfPluB, PricePluB, PriceThreePackPluB);
-            var pricePubC = CalculatePluCCost(_amountOfPluCInGrams, PricePluCprGram);
-            var price = pricePluA + pricePluB + pricePubC;
-            return (RoundOff(price));
+            double cost = 0;
+
+            foreach (var item in accumulatedProducts)
+            {
+                switch (item.ProductType.Discount)
+                {
+                    case Discount.GetXPayForY:
+                    {
+                        cost += CalculateCostOfGetXPayForY(item);
+                        break;
+                    }
+                    case Discount.AmountIsABundle:
+                    {
+                        cost += CalculateCostOfBundle(item);
+                            break;
+                    }
+                    case Discount.None:
+                    {
+                        cost += CalculateCostOfItem(item);
+                            break;
+                    }
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            //var price = CalculatePrice(_accumulatedProducts);
+
+            //var pricePluA = CalculatePluACost(_pairOfPluA, PricePluA, GetPayFor);
+            //var pricePluB = CalculatePluBCost(_numberOfPluB, PricePluB, PriceThreePackPluB);
+            //var pricePubC = CalculatePluCCost(_amountOfPluCInGrams, PricePluCprGram);
+            //var price2 = pricePluA + pricePluB + pricePubC;
+            //return (RoundOff(price));
+            return RoundOff(cost);
+        }
+
+        private double CalculateCostOfBundle(Item item)
+        {
+            throw new NotImplementedException();
+        }
+
+        private double CalculateCostOfGetXPayForY(Item item)
+        {
+            throw new NotImplementedException();
+        }
+
+        private double CalculateCostOfItem(Item item)
+        {
+            return 0;
         }
 
         private double CalculatePluACost(int numberPluA, double pricePluA, int getXPayFor)

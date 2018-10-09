@@ -31,7 +31,6 @@ namespace RetailSystem.DAL
                 {
                     Name = "PLU A",
                     Price = 59.90,
-                    Unit = Unit.Pieces,
                     Discount = Discount.GetXPayForY,
                     GetXPayForY = new Tuple<int, int>(3,2)
                 },
@@ -39,7 +38,6 @@ namespace RetailSystem.DAL
                 {
                     Name = "PLU B",
                     Price = 399,
-                    Unit = Unit.Pieces,
                     Discount = Discount.AmountIsABundle,
                     Bundle = 3,
                     BundlePrice = 999
@@ -48,7 +46,6 @@ namespace RetailSystem.DAL
                 {
                     Name = "PLU C",
                     Price = 19.54/1000,
-                    Unit = Unit.Amount,
                     Discount = Discount.None
                 }
             };

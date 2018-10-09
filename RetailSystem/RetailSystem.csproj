@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DAL\IProductRepository.cs" />
+    <Compile Include="DAL\Item.cs" />
+    <Compile Include="DAL\Product.cs" />
+    <Compile Include="DAL\ProductRepository.cs" />
     <Compile Include="RetailPayment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

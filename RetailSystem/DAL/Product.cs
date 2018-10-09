@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RetailSystem.DAL
 {
-    class Product
+    public class Product
     {
         public string Name { get; set; }
         public double Price { get; set; }
@@ -14,17 +10,17 @@ namespace RetailSystem.DAL
         public Discount Discount { get; set; }
         public int Bundle { get; set; }
         public Tuple<int,int> GetXPayForY { get; set; }
-        
+        public double BundlePrice { get; set; }
     }
 
 
-    internal enum Unit
+    public enum Unit
     {
         Pieces = 1,
         Amount = 2
     };
 
-    internal enum Discount
+    public enum Discount
     {
         GetXPayForY = 1,
         AmountIsABundle = 2,

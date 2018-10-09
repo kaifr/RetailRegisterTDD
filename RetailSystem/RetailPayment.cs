@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using RetailSystem.DAL;
 
 namespace RetailSystem
@@ -10,19 +9,6 @@ namespace RetailSystem
     {
         private readonly IEnumerable<Product> _allProducts;
         private readonly List<Item> _accumulatedProducts;
-
-        ////My in memory storage
-        //private int _pairOfPluA;
-        //private int _numberOfPluB;
-        //private double _amountOfPluCInGrams;
-
-        ////My config "files" 
-        //private const double PricePluA = 59.90;
-        //private const int GetPayFor = 3;
-        //private const int PricePluB = 399;
-        //private const int PriceThreePackPluB = 999;
-        //private const double PricePluCprGram = 19.54 / 1000;
-
 
         public RetailPayment(ProductRepository repository)
         {
@@ -37,6 +23,11 @@ namespace RetailSystem
                     Amount = 0
                 });
             }
+        }
+
+        public List<Item> GetItems()
+        {
+            return _accumulatedProducts;
         }
 
         public void Add(string plu, double amount)
@@ -55,6 +46,7 @@ namespace RetailSystem
             {
                 Console.WriteLine("Product does not exist");
             }
+
         }
 
         public int CalculateCost(List<Item> accumulatedProducts)
@@ -63,6 +55,7 @@ namespace RetailSystem
 
             foreach (var item in accumulatedProducts)
             {
+                if ((int)item.Amount == 0) continue;
                 switch (item.ProductType.Discount)
                 {
                     case Discount.GetXPayForY:
@@ -84,51 +77,35 @@ namespace RetailSystem
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            //var price = CalculatePrice(_accumulatedProducts);
-
-            //var pricePluA = CalculatePluACost(_pairOfPluA, PricePluA, GetPayFor);
-            //var pricePluB = CalculatePluBCost(_numberOfPluB, PricePluB, PriceThreePackPluB);
-            //var pricePubC = CalculatePluCCost(_amountOfPluCInGrams, PricePluCprGram);
-            //var price2 = pricePluA + pricePluB + pricePubC;
-            //return (RoundOff(price));
             return RoundOff(cost);
         }
 
-        private double CalculateCostOfBundle(Item item)
+        private static double CalculateCostOfBundle(Item item)
         {
-            throw new NotImplementedException();
+            var bundleSize = item.ProductType.Bundle;
+            var pricePrItem = item.ProductType.Price;
+            var bundlePrice = item.ProductType.BundlePrice;
+            var rest = item.Amount % bundleSize;
+            var numberOfBundles = (item.Amount - rest) / bundleSize;
+            return numberOfBundles * bundlePrice + rest * pricePrItem;
         }
 
-        private double CalculateCostOfGetXPayForY(Item item)
+        private static double CalculateCostOfGetXPayForY(Item item)
         {
-            throw new NotImplementedException();
+            var price = item.ProductType.Price;
+            var getY = item.ProductType.GetXPayForY.Item1;
+            var payX = item.ProductType.GetXPayForY.Item2;
+            var rest = item.Amount % getY;
+            var payFor = ((item.Amount-rest) / getY) * payX;
+            return (payFor + rest) * price;
         }
 
-        private double CalculateCostOfItem(Item item)
+        private static double CalculateCostOfItem(Item item)
         {
-            return 0;
-        }
-
-        private double CalculatePluACost(int numberPluA, double pricePluA, int getXPayFor)
-        {
-            var numberPluAPayingFor = numberPluA - numberPluA / getXPayFor;
-            return numberPluAPayingFor * pricePluA;
-        }
-
-        private static int CalculatePluBCost(int numberOfArticles, int pricePrArticle, int bundlePrice)
-        {
-            const int amountIsBundle = 3;
-            var numberOfBundles = numberOfArticles / amountIsBundle;
-            var rest = numberOfArticles % amountIsBundle;
-            return numberOfBundles * bundlePrice + rest * pricePrArticle;
-        }
-
-        private double CalculatePluCCost(double amountOfPluCInGrams, double pricePluCprGram)
-        {
-            var costKr = amountOfPluCInGrams * pricePluCprGram;
+            var amount = item.Amount;
+            var price = item.ProductType.Price;
+            var costKr = amount * price;
             //Smallest amount is one oere.
-            //This doesn't make sense since there is only one product that can have this small amount
-            //and anything below 0.50 oere will be 0 kr
             if (costKr < 0.01)
             {
                 costKr = 0;
@@ -136,7 +113,7 @@ namespace RetailSystem
             return Math.Round(costKr, 2);
         }
 
-        private int RoundOff(double price)
+        private static int RoundOff(double price)
         {
             return (int)Math.Round(price, MidpointRounding.AwayFromZero);
         }

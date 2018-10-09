@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RetailSystem.DAL
 {
@@ -15,45 +12,42 @@ namespace RetailSystem.DAL
         {
             _productContext = context;
         }
-
-
-        public List<Product> GetAllProducts()
+        
+        public IEnumerable<Product> GetAllProducts()
         {
-            return _productContext.ToList();
+            return _productContext.GetProducts();
         }
-
-
     }
 
-    internal class ProductContext
+    public class ProductContext
     {
-        public Product Products { get; set; }
 
-        public IEnumerable<Product> ToList()
+        public List<Product> GetProducts()
         {
 
             var productList = new List<Product>
             {
                 new Product
                 {
-                    Name = "PluA",
-                    Price = 10,
+                    Name = "PLU A",
+                    Price = 59.90,
                     Unit = Unit.Pieces,
                     Discount = Discount.GetXPayForY,
                     GetXPayForY = new Tuple<int, int>(3,2)
                 },
                 new Product
                 {
-                    Name = "PluB",
-                    Price = 17,
+                    Name = "PLU B",
+                    Price = 399,
                     Unit = Unit.Pieces,
                     Discount = Discount.AmountIsABundle,
-                    Bundle = 3
+                    Bundle = 3,
+                    BundlePrice = 999
                 },
                 new Product
                 {
-                    Name = "PluC",
-                    Price = 188,
+                    Name = "PLU C",
+                    Price = 19.54/1000,
                     Unit = Unit.Amount,
                     Discount = Discount.None
                 }

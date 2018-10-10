@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RetailSystem.DAL
 {
@@ -15,41 +14,7 @@ namespace RetailSystem.DAL
         
         public IEnumerable<Product> GetAllProducts()
         {
-            return _productContext.GetProducts();
-        }
-    }
-
-    public class ProductContext
-    {
-
-        public List<Product> GetProducts()
-        {
-
-            var productList = new List<Product>
-            {
-                new Product
-                {
-                    Name = "PLU A",
-                    Price = 59.90,
-                    Discount = Discount.GetXPayForY,
-                    GetXPayForY = new Tuple<int, int>(3,2)
-                },
-                new Product
-                {
-                    Name = "PLU B",
-                    Price = 399,
-                    Discount = Discount.AmountIsABundle,
-                    Bundle = 3,
-                    BundlePrice = 999
-                },
-                new Product
-                {
-                    Name = "PLU C",
-                    Price = 19.54/1000,
-                    Discount = Discount.None
-                }
-            };
-            return productList;
+            return _productContext.Products;
         }
     }
 }

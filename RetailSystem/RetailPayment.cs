@@ -7,14 +7,14 @@ namespace RetailSystem
 {
     public class RetailPayment
     {
-        private readonly ProductRepository _repository;
+        public ProductRepository Repository { get; }
 
         //private readonly IEnumerable<Product> _allProducts;
         private readonly List<Item> _accumulatedProducts;
 
         public RetailPayment(ProductRepository repository)
         {
-            _repository = repository;
+            Repository = repository;
             var allProducts = repository.GetAllProducts().ToList();
 
             
@@ -60,7 +60,6 @@ namespace RetailSystem
 
             foreach (var item in accumulatedProducts)
             {
-                if ((int)item.Amount == 0) continue;
                 switch (item.ProductType.Discount)
                 {
                     case Discount.GetXPayForY:

@@ -25,7 +25,6 @@ namespace RetailSystem.Tests
                 {
                     Name = "PLU A",
                     Price = 59.90,
-                    Unit = Unit.Pieces,
                     Discount = Discount.GetXPayForY,
                     GetXPayForY = new Tuple<int, int>(3, 2)
                 },
@@ -33,7 +32,6 @@ namespace RetailSystem.Tests
                 {
                     Name = "PLU B",
                     Price = 399,
-                    Unit = Unit.Pieces,
                     Discount = Discount.AmountIsABundle,
                     Bundle = 3,
                     BundlePrice = 999
@@ -42,7 +40,6 @@ namespace RetailSystem.Tests
                 {
                     Name = "PLU C",
                     Price = 19.54 / 1000,
-                    Unit = Unit.Amount,
                     Discount = Discount.None
                 }
             }.AsQueryable();
@@ -54,13 +51,12 @@ namespace RetailSystem.Tests
             _mockSet.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_productList.GetEnumerator());
 
             _mockContext = new Mock<ProductContext>();
+            _mockContext.Setup(c => c.Products).Returns(_mockSet.Object);
         }
         
         [Test]
         public void GetAllProducts_by_name()
         {
-            _mockContext.Setup(c => c.Products).Returns(_mockSet.Object);
-
             var repo = new ProductRepository(_mockContext.Object);
             var products = repo.GetAllProducts().ToList();
 
@@ -83,8 +79,6 @@ namespace RetailSystem.Tests
         [Test]
         public void AddPairsOfRubberGloves_returnsKr(int number, int totalPrice)
         {
-            _mockContext.Setup(c => c.Products).Returns(_mockSet.Object);
-
             var repo = new ProductRepository(_mockContext.Object);
             var cashRegister = new RetailPayment(repo);
             cashRegister.Add("PLU A", number);
@@ -100,8 +94,6 @@ namespace RetailSystem.Tests
         [Test]
         public void AddNumbersOfStethoscopes_returnsKr(int number, int totalPrice)
         {
-            _mockContext.Setup(c => c.Products).Returns(_mockSet.Object);
-
             var repo = new ProductRepository(_mockContext.Object);
             var cashRegister = new RetailPayment(repo);
             cashRegister.Add("PLU B", number);
@@ -109,79 +101,124 @@ namespace RetailSystem.Tests
             Assert.That(totalCost, Is.EqualTo(totalPrice));
         }
 
-        /*
+        
         [Test]
         public void OneKiloOfTalcumPowder_returnsKr20()
         {
-            _cashRegister.Add("PLU C", 1000);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(20));
         }
 
+        
         [Test]
         public void AmountOfTalcumPowderCostLessOneOre_returnsKr0()
         {
             const double smallAmountCostLessThanOneOere = 1 / 1.954;
-            _cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+            cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(0));
         }
+        
 
         [Test]
         public void AmountOfTalcumPowderALittleMoreThanOneOre_returnsKr0()
         {
             const double smallAmountCostLessThanOneOere = 1 / 1.953;
-            _cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+            cashRegister.Add("PLU C", smallAmountCostLessThanOneOere);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(0));
         }
 
+        
         [TestCase(1000, 20)]
         [TestCase(500, 10)]
         [TestCase(333, 7)]
         [Test]
         public void AmountOfTalcumPowder_returnsKr(int amount, int KrPrice)
         {
-            _cashRegister.Add("PLU C", amount);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+            cashRegister.Add("PLU C", amount);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(KrPrice));
         }
 
-
+        
         [Test]
         public void AddingOneOfEachDifferentProducts_ReturnsKr475()
         {
-            _cashRegister.Add("PLU A", 1);
-            _cashRegister.Add("PLU B", 1);
-            _cashRegister.Add("PLU C", 1000);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 1);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(478));
         }
 
+        
         [Test]
         public void AddingOneBundleOfEachDifferentProducts_ReturnsKr475()
         {
-            _cashRegister.Add("PLU A", 3);
-            _cashRegister.Add("PLU B", 3);
-            _cashRegister.Add("PLU C", 1000);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+
+            cashRegister.Add("PLU A", 3);
+            cashRegister.Add("PLU B", 3);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(1138));
         }
+
+        
 
         [Test]
         public void AddingSeveralDifferentProductsNotInOrder_ReturnsKr2030()
         {
-            _cashRegister.Add("PLU C", 750);
-            _cashRegister.Add("PLU A", 1);
-            _cashRegister.Add("PLU B", 2);
-            _cashRegister.Add("PLU C", 1000);
-            _cashRegister.Add("PLU B", 1);
-            _cashRegister.Add("PLU A", 2);
-            _cashRegister.Add("PLU A", 1);
-            _cashRegister.Add("PLU B", 2);
-            _cashRegister.Add("PLU C", 1000);
-            var totalCost = _cashRegister.CalculateCost(_cashRegister.GetItems());
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+
+            cashRegister.Add("PLU C", 750);
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 2);
+            cashRegister.Add("PLU C", 1000);
+            cashRegister.Add("PLU B", 1);
+            cashRegister.Add("PLU A", 2);
+            cashRegister.Add("PLU A", 1);
+            cashRegister.Add("PLU B", 2);
+            cashRegister.Add("PLU C", 1000);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
             Assert.That(totalCost, Is.EqualTo(2030));
-        } */
+        }
+
+        [Test]
+        public void TryingToRemoveItems_ReturnsKr0()
+        {
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+
+            cashRegister.Add("PLU C", -1);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
+            Assert.That(totalCost, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TryingToAddItemsNotRegistred_ReturnsKr0()
+        {
+            var repo = new ProductRepository(_mockContext.Object);
+            var cashRegister = new RetailPayment(repo);
+
+            cashRegister.Add("PLU W", 1);
+            var totalCost = cashRegister.CalculateCost(cashRegister.GetItems());
+            Assert.That(totalCost, Is.EqualTo(0));
+        }
     }
 }

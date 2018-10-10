@@ -7,15 +7,20 @@ namespace RetailSystem
 {
     public class RetailPayment
     {
-        private readonly IEnumerable<Product> _allProducts;
+        private readonly ProductRepository _repository;
+
+        //private readonly IEnumerable<Product> _allProducts;
         private readonly List<Item> _accumulatedProducts;
 
         public RetailPayment(ProductRepository repository)
         {
-            _allProducts = repository.GetAllProducts();
+            _repository = repository;
+            var allProducts = repository.GetAllProducts().ToList();
+
+            
             _accumulatedProducts = new List<Item>();
 
-            foreach (var product in _allProducts)
+            foreach (var product in allProducts)
             {
                 _accumulatedProducts.Add(new Item
                 {
@@ -38,7 +43,7 @@ namespace RetailSystem
                 return;
             }
 
-            if (_allProducts.Any(p => p.Name.Equals(plu)))
+            if (_accumulatedProducts.Any(p => p.ProductType.Name.Equals(plu)))
             {
                 _accumulatedProducts.Find(p => p.ProductType.Name.Equals(plu)).Amount += amount;
             }
